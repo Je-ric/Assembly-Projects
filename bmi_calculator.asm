@@ -1,0 +1,171 @@
+.MODEL SMALL
+.STACK 100H
+.DATA
+  MESSAGE_A DB ' == * == * == * == * == * WELCOME TO OUR PROJECT * == * == * == * == * == *$' 
+  MESSAGE_B DB ' * * * * * * * * * * * * * *  BMI CALCULATOR  * * * * * * * * * * * * * * *$'
+  MESSAGE_C DB ' MAKE SURE YOU KNOW YOUR HEIGHT IN "CM" AND YOUR WEIGHT IN "KG" !!! $'
+  MESSAGE_D DB ' Input your height in cm:$'
+  MESSAGE_E DB ' Input your weight in kg:$'
+  MESSAGE_F DB ' "Your BMI is: Over Weight"$'
+  MESSAGE_G DB ' "Your BMI is: Normal"$'
+  MESSAGE_H DB ' "Your BMI is: Under Weight"$'
+  MESSAGE_I DB ' "Your BMI is: Obese"$'
+  MESSAGE_J DB '  * * * * * * * * * * * * * * * THANK YOU * * * * * * * * * * * * * * *$'
+  
+  HEIGHT DW ?
+.CODE
+MAIN PROC
+  MOV AX, @DATA
+  MOV DS, AX
+
+  LEA DX, MESSAGE_A
+  MOV AH, 9
+  INT 21H
+
+  CALL NL
+  CALL NL
+
+  LEA DX, MESSAGE_B
+  MOV AH, 9
+  INT 21H
+
+  CALL NL
+  CALL NL
+
+  LEA DX, MESSAGE_C
+  MOV AH, 9
+  INT 21H
+
+START:
+  CALL NL
+  CALL NL
+
+  LEA DX, MESSAGE_D
+  MOV AH, 9
+  INT 21H
+
+  MOV AX, 0
+  MOV BX, 0
+  MOV CX, 0
+  MOV DX, 0
+  MOV HEIGHT, 0
+
+INPUT_HEIGHT:
+  AND AX, 000FH
+  PUSH AX
+  MOV AX, 10
+  MUL BX
+  MOV BX, AX
+  POP AX
+  ADD BX, AX
+
+  MOV AH, 1
+  INT 21H
+
+  CMP AL, 0DH
+  JE PRINT_HEIGHT
+
+  JMP INPUT_HEIGHT
+
+PRINT_HEIGHT:
+  CALL NL
+
+  LEA DX, MESSAGE_E
+  MOV AH, 9
+  INT 21H
+
+  MOV HEIGHT, BX
+  MOV BX, 0
+  MOV AX, 0
+
+INPUT_WEIGHT:
+  AND AX, 000FH
+  PUSH AX
+  MOV AX, 10
+  MUL BX
+  MOV BX, AX
+  POP AX
+  ADD BX, AX
+
+  MOV AH, 1
+  INT 21H
+
+  CMP AL, 0DH
+  JE CONVERT
+
+  JMP INPUT_WEIGHT
+
+CONVERT:
+  MOV AX, HEIGHT
+  MOV DX, 0
+  DIV BX
+
+  CMP AX, 3
+  JE UNDERWEIGHT
+
+  CMP AX, 2
+  JE NORMAL
+
+  CMP AX, 1
+  JE OVERWEIGHT
+
+JE OBESITY
+
+UNDERWEIGHT:
+  CALL NL
+
+  LEA DX, MESSAGE_H
+  MOV AH, 9
+  INT 21H
+
+  JMP CONTINUE
+
+NORMAL:
+  CALL NL
+
+  LEA DX, MESSAGE_G
+  MOV AH, 9
+  INT 21H
+
+  JMP CONTINUE
+
+OVERWEIGHT:
+  CALL NL
+
+  LEA DX, MESSAGE_F
+  MOV AH, 9
+  INT 21H
+
+  JMP CONTINUE
+
+OBESITY:
+  CALL NL
+
+  LEA DX, MESSAGE_I
+  MOV AH, 9
+  INT 21H
+
+CONTINUE:
+  JMP EXIT_PROGRAM
+
+NL:
+  MOV AH, 2
+  MOV DL, 0DH
+  INT 21H
+  MOV DL, 0AH
+  INT 21H
+  RET
+
+EXIT_PROGRAM:
+  CALL NL
+  CALL NL
+
+  LEA DX, MESSAGE_J
+  MOV AH, 9
+  INT 21H
+
+  MOV AH, 4CH
+  INT 21H
+
+MAIN ENDP
+END MAIN
